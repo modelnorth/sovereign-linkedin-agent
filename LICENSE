@@ -1,0 +1,40 @@
+MODELNORTH SOVEREIGN OPEN LICENSE (MN-SL v1.0)
+Copyright (c) 2026 ModelNorth (https://modelnorth.com). All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, and distribute copies of the Software,
+subject to the following conditions:
+
+1. MANDATORY MODELNORTH ATTRIBUTION
+The above copyright notice, this permission notice, and explicit credit to
+ModelNorth (https://modelnorth.com) must be retained and prominently displayed
+in all copies, substantial portions, derived works, CLI output headers, and
+documentation of the Software.
+
+2. TRADEMARK & BRAND INTEGRITY PROTECTION
+The names "ModelNorth", "ModelNorth Sovereign AI", "modelnorth.com", and associated
+logos, emblems, and visual trademarks are proprietary marks of ModelNorth.
+This license does not grant permission to use the trade names, trademarks, service
+marks, or product names of ModelNorth, except as required for reasonable and customary
+use in describing the origin of the Software. Modifying the software to rebrand
+or obscure ModelNorth's authorship is strictly prohibited.
+
+3. COMMERCIAL HOSTED SAAS RESTRICTION
+Any individual or entity may freely use, deploy, and execute this Software internally,
+for personal, enterprise on-premise, research, or agency operations. However, offering
+this Software or an altered version thereof as a standalone commercial multi-tenant
+hosted software-as-a-service (SaaS) or managed cloud platform competing directly with
+ModelNorth services requires a separate commercial agreement executed with ModelNorth.
+
+4. NO WARRANTY
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Inquiries & Commercial Licensing: licensing@modelnorth.com | https://modelnorth.com

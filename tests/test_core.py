@@ -83,3 +83,13 @@ def test_stealth_bezier_trajectory():
     # Check bounds
     assert abs(trajectory[0][0] - start[0]) < 2.0
     assert abs(trajectory[-1][0] - end[0]) < 2.0
+
+
+def test_lead_scout_clean_helpers():
+    raw_name = "Tariq Al-Mansoor • 2nd\nView Tariq's profile"
+    cleaned = LeadScout.clean_name(raw_name)
+    assert cleaned == "Tariq Al-Mansoor"
+
+    raw_url = "https://www.linkedin.com/in/tariq-al-mansoor?miniProfileUrn=urn%3Ali%3Afs_miniProfile%3A12345"
+    cleaned_url = LeadScout.clean_url(raw_url)
+    assert cleaned_url == "https://www.linkedin.com/in/tariq-al-mansoor"

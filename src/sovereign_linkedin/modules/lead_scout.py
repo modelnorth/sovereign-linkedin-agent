@@ -91,6 +91,137 @@ class LeadScout:
         return min(100, score), notes
 
     @classmethod
+    def clean_name(cls, raw_name: str) -> str:
+        """Strip badges, degrees (e.g. '• 2nd', '• 1st', 'Premium'), and whitespace."""
+        text = raw_name.split("\n")[0].strip()
+        for suffix in ["• 1st", "• 2nd", "• 3rd+", "• 3rd", "View ", "’s profile"]:
+            text = text.replace(suffix, "")
+        return text.strip()
+
+    @classmethod
+    def clean_url(cls, raw_url: str) -> str:
+        """Strips tracking parameters from LinkedIn profile URLs."""
+        if "?" in raw_url:
+            return raw_url.split("?")[0]
+        return raw_url
+
+    @classmethod
+    async def scrape_live_search(
+        cls,
+        browser: Any,
+        keywords: str,
+        location: Optional[str] = None,
+        limit: int = 15,
+        max_pages: int = 3
+    ) -> list[Prospect]:
+        """
+        Executes live browser scraping of LinkedIn search results over CDP.
+        Uses stealth human scrolling and anti-bot pauses to extract prospects.
+        """
+        import urllib.parse
+        from sovereign_linkedin.core.stealth import StealthEngine
+
+        query_parts = [keywords]
+        if location:
+            query_parts.append(location)
+        search_query = " ".join(query_parts)
+        encoded_query = urllib.parse.quote_plus(search_query)
+
+        scraped_prospects: list[Prospect] = []
+        seen_urls: set[str] = set()
+
+        page = await browser.get_or_create_page()
+
+        for page_num in range(1, max_pages + 1):
+            if len(scraped_prospects) >= limit:
+                break
+
+            search_url = (
+                f"https://www.linkedin.com/search/results/people/"
+                f"?keywords={encoded_query}&page={page_num}&origin=GLOBAL_SEARCH_HEADER"
+            )
+            logger.info(f"Navigating to search page {page_num}: {search_url}")
+            await browser.navigate_safely(search_url)
+
+            # Wait for search results container
+            result_selectors = [
+                "li.reusable-search__result-container",
+                "div.search-results-container",
+                "div[data-chameleon-result-urn]",
+                "div.entity-result"
+            ]
+
+            found_results = False
+            for sel in result_selectors:
+                if await page.locator(sel).count() > 0:
+                    found_results = True
+                    break
+
+            if not found_results:
+                logger.warning(f"No search result cards found on page {page_num}.")
+                break
+
+            # Natural human scroll to trigger lazy loading
+            await StealthEngine.human_scroll(page, scroll_distance=900, steps=6)
+
+            # Extract result cards
+            cards = page.locator("li.reusable-search__result-container, div.entity-result")
+            card_count = await cards.count()
+            logger.info(f"Found {card_count} prospect cards on page {page_num}")
+
+            for i in range(card_count):
+                if len(scraped_prospects) >= limit:
+                    break
+
+                card = cards.nth(i)
+                try:
+                    # Extract profile link and name
+                    link_el = card.locator("a.app-aware-link[href*='/in/']").first
+                    if await link_el.count() == 0:
+                        continue
+
+                    raw_url = await link_el.get_attribute("href") or ""
+                    url = cls.clean_url(raw_url)
+                    if not url or url in seen_urls:
+                        continue
+
+                    raw_name = await link_el.inner_text()
+                    name = cls.clean_name(raw_name)
+                    if not name or "LinkedIn Member" in name:
+                        continue
+
+                    # Extract headline
+                    hl_el = card.locator("div.entity-result__primary-subtitle, div[class*='subtitle']").first
+                    headline = await hl_el.inner_text() if await hl_el.count() > 0 else ""
+                    headline = headline.strip().replace("\n", " ")
+
+                    # Extract location
+                    loc_el = card.locator("div.entity-result__secondary-subtitle, div[class*='secondary-subtitle']").first
+                    lead_loc = await loc_el.inner_text() if await loc_el.count() > 0 else location
+
+                    # Compute score and notes
+                    score, notes = cls.calculate_seniority_score(headline, lead_loc)
+
+                    prospect = Prospect(
+                        name=name,
+                        headline=headline,
+                        profile_url=url,
+                        location=lead_loc,
+                        seniority_score=score,
+                        sovereign_fit_notes=notes
+                    )
+
+                    seen_urls.add(url)
+                    scraped_prospects.append(prospect)
+                    logger.info(f"Scraped lead: {name} ({headline}) | Score: {score}")
+
+                except Exception as e:
+                    logger.debug(f"Error parsing card {i}: {e}")
+                    continue
+
+        return scraped_prospects
+
+    @classmethod
     def parse_raw_profile(cls, raw: dict[str, Any]) -> Prospect:
         name = raw.get("name") or raw.get("title", "Unknown Prospect")
         headline = raw.get("headline") or raw.get("subtitle", "")

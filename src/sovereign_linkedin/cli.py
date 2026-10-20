@@ -125,40 +125,70 @@ def launch_browser_cmd(port: int):
 @click.option("--role", default="Chief Technology Officer", help="Target executive role")
 @click.option("--location", default="Dubai, UAE", help="Target geographic region")
 @click.option("--limit", default=10, help="Number of prospects to evaluate")
+@click.option("--live/--offline", default=False, help="Execute live browser scraping over CDP")
 @click.option("--export-csv/--no-csv", default=True, help="Export results to CSV")
-def scout_cmd(role: str, location: str, limit: int, export_csv: bool):
+def scout_cmd(role: str, location: str, limit: int, live: bool, export_csv: bool):
     """Scout and rank high-ticket enterprise decision-makers."""
     console.print(BANNER)
     config = AgentConfig.load()
 
-    console.print(f"[bold cyan]Scouting ICP Leads:[/bold cyan] Role='[white]{role}[/white]', Location='[white]{location}[/white]'")
+    console.print(
+        f"[bold cyan]Scouting ICP Leads:[/bold cyan] Role='[white]{role}[/white]', "
+        f"Location='[white]{location}[/white]', Mode='[yellow]{'LIVE BROWSER CDP' if live else 'OFFLINE/DEMO'}[/yellow]'"
+    )
 
-    # Sample demo mock/scout profiles
-    demo_profiles = [
-        {
-            "name": "Tariq Al-Mansoor",
-            "headline": f"{role} | Sovereign Cloud & Enterprise Defense AI",
-            "company": "Emirates Sovereign Tech Group",
-            "location": location,
-            "profile_url": "https://www.linkedin.com/in/sample-cto-dubai"
-        },
-        {
-            "name": "Sarah Jenkins",
-            "headline": "Head of Artificial Intelligence & MCP Architecture",
-            "company": "GCC Financial Technologies",
-            "location": "Abu Dhabi, UAE",
-            "profile_url": "https://www.linkedin.com/in/sample-head-ai"
-        },
-        {
-            "name": "Dr. Faisal Rahman",
-            "headline": "Chief Information Security Officer (CISO) | Air-Gapped Systems",
-            "company": "Gulf Sovereign Digital Infrastructure",
-            "location": "Dubai, UAE",
-            "profile_url": "https://www.linkedin.com/in/sample-ciso-gcc"
-        }
-    ]
+    prospects = []
 
-    prospects = [LeadScout.parse_raw_profile(p) for p in demo_profiles][:limit]
+    if live:
+        vault = SessionVault(config.vault_dir, config.browser.cdp_url)
+        if not vault.check_cdp_status():
+            console.print("[yellow]Brave CDP is not running. Launching browser instance...[/yellow]")
+            vault.launch_brave_cdp(config.browser.brave_executable_path)
+
+        browser = BrowserDriver(config)
+
+        async def _scrape():
+            try:
+                console.print(f"[cyan]Connecting to live LinkedIn search via CDP...[/cyan]")
+                return await LeadScout.scrape_live_search(
+                    browser=browser,
+                    keywords=role,
+                    location=location,
+                    limit=limit
+                )
+            finally:
+                await browser.close()
+
+        prospects = asyncio.run(_scrape())
+        if not prospects:
+            console.print("[yellow]No live prospects captured or login page detected. Ensure you are signed in on Brave.[/yellow]")
+    
+    if not prospects:
+        # Sample demo mock/scout profiles
+        demo_profiles = [
+            {
+                "name": "Tariq Al-Mansoor",
+                "headline": f"{role} | Sovereign Cloud & Enterprise Defense AI",
+                "company": "Emirates Sovereign Tech Group",
+                "location": location,
+                "profile_url": "https://www.linkedin.com/in/sample-cto-dubai"
+            },
+            {
+                "name": "Sarah Jenkins",
+                "headline": "Head of Artificial Intelligence & MCP Architecture",
+                "company": "GCC Financial Technologies",
+                "location": "Abu Dhabi, UAE",
+                "profile_url": "https://www.linkedin.com/in/sample-head-ai"
+            },
+            {
+                "name": "Dr. Faisal Rahman",
+                "headline": "Chief Information Security Officer (CISO) | Air-Gapped Systems",
+                "company": "Gulf Sovereign Digital Infrastructure",
+                "location": "Dubai, UAE",
+                "profile_url": "https://www.linkedin.com/in/sample-ciso-gcc"
+            }
+        ]
+        prospects = [LeadScout.parse_raw_profile(p) for p in demo_profiles][:limit]
 
     table = Table(title="[bold green]High-Ticket Prospect Matrix[/bold green]", box=box.ROUNDED)
     table.add_column("Score", style="bold yellow")

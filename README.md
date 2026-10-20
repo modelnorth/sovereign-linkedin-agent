@@ -110,13 +110,18 @@ sovereign-linkedin launch-browser
 ```
 *This opens Brave with remote debugging on port 9222, automation flags disabled, and your session stored exclusively in your local vault.*
 
-### 4. Scout High-Ticket Leads
+### 4. Scout & Scrape High-Ticket Leads
 
-Filter and score enterprise decision-makers across the GCC and global markets:
+Filter, score, and scrape enterprise decision-makers across the GCC and global markets:
 
 ```bash
+# Offline ICP evaluation & scoring
 sovereign-linkedin scout --role "Chief Technology Officer" --location "Dubai, UAE" --limit 15
+
+# Live Anti-Ban Browser Scraper (navigates search, scrolls, parses, and scores leads)
+sovereign-linkedin scout --role "Chief Technology Officer" --location "Dubai, UAE" --limit 25 --live
 ```
+*Leads are automatically deduplicated, ranked by seniority score (0-100), and saved to `~/.modelnorth/linkedin_vault/leads_export.csv`.*
 
 ### 5. Synthesize Sovereign Outreach
 

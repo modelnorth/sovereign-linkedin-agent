@@ -57,8 +57,11 @@ python -m sovereign_linkedin.cli status
 # Launch Brave in anti-ban CDP debugging mode
 python -m sovereign_linkedin.cli launch-browser
 
-# Scout enterprise leads in Dubai / GCC
+# Scout enterprise leads in Dubai / GCC (offline evaluation)
 python -m sovereign_linkedin.cli scout --role "Chief Technology Officer" --location "Dubai, UAE" --limit 15
+
+# Live Anti-Ban Browser Lead Scraper over CDP
+python -m sovereign_linkedin.cli scout --role "Chief Technology Officer" --location "Dubai, UAE" --limit 20 --live --export-csv
 
 # Synthesize personalized connection note and direct message
 python -m sovereign_linkedin.cli synthesize --name "Faisal Al-Otaibi" --company "Sovereign Cloud" --headline "VP of Engineering" --angle sovereign

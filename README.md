@@ -15,6 +15,10 @@
 
 [**Official Website**](https://modelnorth.com) • [**Documentation**](https://github.com/modelnorth/sovereign-linkedin-agent) • [**Architecture**](#-architecture--how-it-works) • [**Quickstart**](#-quickstart)
 
+<br/>
+
+<img src="assets/demo.gif" alt="ModelNorth Sovereign LinkedIn Agent Live Walkthrough" width="850" />
+
 </div>
 
 ---

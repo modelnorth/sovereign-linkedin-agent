@@ -130,3 +130,26 @@ def test_scheduler_queue_loading():
         assert next_post is not None
         assert next_post.id == 2
         assert next_post.title == "Post 2"
+
+
+def test_deal_radar_hiring_gap_pitch():
+    from sovereign_linkedin.modules.deal_radar import DealRadar
+    invite, dm = DealRadar.synthesize_hiring_gap_pitch(
+        executive_name="Dr. Tariq Al-Mansoor",
+        company="Emirates Autonomous Tech",
+        hiring_role="Lead AI Architect",
+        location="Dubai"
+    )
+
+    # 300 char invite cap
+    assert len(invite) <= 300
+    assert "Tariq" in invite
+    assert "Emirates Autonomous Tech" in invite
+    assert "14-day sprint" in invite
+    assert "ModelNorth" in invite
+    assert "modelnorth.com" in invite
+
+    # Direct message validation
+    assert "60 to 90 days" in dm
+    assert "Model Context Protocol (MCP)" in dm
+    assert "https://modelnorth.com" in dm

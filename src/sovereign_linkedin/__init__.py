@@ -19,6 +19,7 @@ from sovereign_linkedin.core.governor import SafetyGovernor
 from sovereign_linkedin.core.vault import SessionVault
 from sovereign_linkedin.modules.lead_scout import LeadScout
 from sovereign_linkedin.modules.outreach import OutreachSynthesizer
+from sovereign_linkedin.modules.deal_radar import DealRadar, HiringSignal, DealOpportunity
 
 __all__ = [
     "AgentConfig",
@@ -27,4 +28,7 @@ __all__ = [
     "SessionVault",
     "LeadScout",
     "OutreachSynthesizer",
+    "DealRadar",
+    "HiringSignal",
+    "DealOpportunity",
 ]

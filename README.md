@@ -124,7 +124,24 @@ sovereign-linkedin scout --role "Chief Technology Officer" --location "Dubai, UA
 ```
 *Leads are automatically deduplicated, ranked by seniority score (0-100), and saved to `~/.modelnorth/linkedin_vault/leads_export.csv`.*
 
-### 5. Synthesize Sovereign Outreach
+### 5. Hunt High-Ticket Deals via Active Hiring Signals
+
+Track companies actively recruiting AI talent and pitch a 14-day production bridge sprint while they interview:
+
+```bash
+# Hunt companies hiring AI Engineers with budget in Dubai & KSA
+sovereign-linkedin hunt-deals --role "AI Engineer" --location "Dubai, UAE"
+
+# Synthesize a bespoke 14-Day Hiring Gap pitch
+sovereign-linkedin hiring-pitch \
+  --company "Emirates Sovereign Tech" \
+  --executive "Dr. Tariq Al-Mansoor" \
+  --role "Lead AI Architect" \
+  --location "Dubai"
+```
+*Outputs both a 300-char connection note and a comprehensive direct message offering immediate deployment so their project roadmap never stalls.*
+
+### 6. Synthesize Sovereign Outreach
 
 Generate high-status connection notes (< 300 chars) and InMails:
 

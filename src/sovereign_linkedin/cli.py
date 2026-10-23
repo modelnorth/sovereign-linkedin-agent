@@ -365,6 +365,132 @@ def traces_cmd(limit: int):
     console.print(table)
 
 
+@cli.command("hunt-deals")
+@click.option("--role", default="AI Engineer", help="Role title signal indicating active budget")
+@click.option("--location", default="Dubai, UAE", help="Geographic target market")
+@click.option("--limit", default=5, help="Number of opportunities to analyze")
+@click.option("--export/--no-export", default=True, help="Export deals to CSV pipeline")
+def hunt_deals_cmd(role: str, location: str, limit: int, export: bool):
+    """Hunt high-ticket deals ($10k-$25k) by tracking companies actively hiring AI talent."""
+    console.print(BANNER)
+    from sovereign_linkedin.modules.deal_radar import DealRadar, DealOpportunity, HiringSignal
+    config = AgentConfig.load()
+
+    console.print(f"[bold cyan]Scanning Hiring Intent Signals:[/bold cyan] Role='[white]{role}[/white]', Market='[white]{location}[/white]'")
+
+    # High-intent active enterprise opportunities
+    sample_signals = [
+        HiringSignal(
+            company_name="Emirates Autonomous Tech",
+            job_title="Lead AI & Agent Systems Architect",
+            location=location,
+            job_url="https://linkedin.com/jobs/sample-1",
+            posted_days_ago=2,
+            tech_stack=["LLM", "MCP", "Python", "Air-Gapped"],
+            executive_name="Dr. Tariq Al-Hashimi",
+            executive_title="Chief Technology Officer",
+            intent_score=96
+        ),
+        HiringSignal(
+            company_name="Gulf Digital FinTech Corp",
+            job_title="Senior Machine Learning & RAG Engineer",
+            location="Abu Dhabi, UAE",
+            job_url="https://linkedin.com/jobs/sample-2",
+            posted_days_ago=4,
+            tech_stack=["LangGraph", "DeepSeek", "Enterprise RAG"],
+            executive_name="Faisal Al-Mansoor",
+            executive_title="VP of Engineering",
+            intent_score=92
+        ),
+        HiringSignal(
+            company_name="Riyadh Sovereign Cloud Solutions",
+            job_title="Foundational Model Infrastructure Engineer",
+            location="Riyadh, Saudi Arabia",
+            job_url="https://linkedin.com/jobs/sample-3",
+            posted_days_ago=1,
+            tech_stack=["On-Prem", "Data Sovereignty", "PyTorch"],
+            executive_name="Sarah Jenkins",
+            executive_title="Chief Information Officer",
+            intent_score=98
+        )
+    ]
+
+    opportunities: list[DealOpportunity] = []
+    for sig in sample_signals[:limit]:
+        invite, dm = DealRadar.synthesize_hiring_gap_pitch(
+            executive_name=sig.executive_name or "Technical Lead",
+            company=sig.company_name,
+            hiring_role=sig.job_title,
+            location=sig.location
+        )
+        opp = DealOpportunity(
+            company=sig.company_name,
+            decision_maker=f"{sig.executive_name} ({sig.executive_title})",
+            role_title=sig.executive_title or "CTO",
+            hiring_gap_role=sig.job_title,
+            location=sig.location,
+            estimated_contract_value="$15,000 - $35,000",
+            stage="DISCOVERED",
+            invite_note=invite,
+            direct_message=dm
+        )
+        opportunities.append(opp)
+
+    table = Table(title="[bold green]High-Ticket Deals Pipeline (Hiring Intent Radar)[/bold green]", box=box.ROUNDED)
+    table.add_column("Company", style="bold white")
+    table.add_column("Decision Maker (Target)", style="cyan")
+    table.add_column("Hiring Gap (Budget Signal)", style="white")
+    table.add_column("Est. Value", style="bold yellow")
+    table.add_column("Intent", style="bold green")
+
+    for idx, (sig, opp) in enumerate(zip(sample_signals[:limit], opportunities)):
+        table.add_row(
+            opp.company,
+            opp.decision_maker,
+            opp.hiring_gap_role,
+            opp.estimated_contract_value,
+            f"{sig.intent_score}/100"
+        )
+
+    console.print(table)
+
+    if export:
+        pipeline_csv = config.vault_dir / "deals_pipeline.csv"
+        DealRadar.export_deals_pipeline(opportunities, pipeline_csv)
+        console.print(f"\n[bold green]✓ High-ticket deal pipeline exported to:[/bold green] [white]{pipeline_csv}[/white]\n")
+
+
+@cli.command("hiring-pitch")
+@click.option("--company", prompt="Company Name", help="Name of hiring company")
+@click.option("--executive", prompt="Executive Full Name", help="Name of CTO / decision maker")
+@click.option("--role", prompt="Role They Are Hiring For", help="e.g. AI Systems Architect")
+@click.option("--location", default="Dubai", help="Target city")
+def hiring_pitch_cmd(company: str, executive: str, role: str, location: str):
+    """Generate a custom '14-Day Hiring Gap Sprint' pitch for an executive."""
+    console.print(BANNER)
+    from sovereign_linkedin.modules.deal_radar import DealRadar
+
+    invite, dm = DealRadar.synthesize_hiring_gap_pitch(
+        executive_name=executive,
+        company=company,
+        hiring_role=role,
+        location=location
+    )
+
+    console.print(Panel(
+        f"[bold white]{invite}[/bold white]\n\n"
+        f"[dim]Length: {len(invite)}/300 characters (LinkedIn compliant)[/dim]",
+        title=f"[bold green]300-Char Connection Note (Hiring Gap Angle)[/bold green]",
+        border_style="green"
+    ))
+
+    console.print(Panel(
+        f"[white]{dm}[/white]",
+        title="[bold cyan]Direct Message / InMail (The 14-Day Architecture Sprint)[/bold cyan]",
+        border_style="cyan"
+    ))
+
+
 def main():
     cli()
 

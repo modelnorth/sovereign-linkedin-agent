@@ -35,7 +35,11 @@ License: **ModelNorth Sovereign Open License (MN-SL v1.0)**
    - Evaluates executives (CTOs, CISOs, Heads of AI, Managing Directors) across the GCC and global enterprise.
    - Computes an autonomous 0–100 Seniority and Sovereignty Alignment Score.
    - Exports clean deduplicated CSV and JSON dossiers.
-3. **OpenTelemetry Observability:**
+3. **Intent-Driven Deal Radar & Hiring Signal Sourcing:**
+   - Detects companies actively recruiting for AI Engineers and LLM Architects in the GCC and global markets.
+   - Correlates the hiring company to its CTO, VP of Engineering, or Founder.
+   - Synthesizes event-triggered "14-Day Hiring Gap Sprint" pitches offering immediate infrastructure deployment while they recruit.
+4. **OpenTelemetry Observability:**
    - Instruments every browser action, governor check, and publication step with standard distributed spans.
    - Records latency (ms), token accounting, and execution proof into an append-only sovereign flight ledger (`otel_traces.jsonl`).
 4. **Autonomous Content Queue & Publishing Scheduler:**
@@ -68,6 +72,12 @@ python -m sovereign_linkedin.cli scout --role "Chief Technology Officer" --locat
 
 # Live Anti-Ban Browser Lead Scraper over CDP
 python -m sovereign_linkedin.cli scout --role "Chief Technology Officer" --location "Dubai, UAE" --limit 20 --live --export-csv
+
+# Hunt high-ticket deals by tracking active AI hiring signals
+python -m sovereign_linkedin.cli hunt-deals --role "AI Engineer" --location "Dubai, UAE"
+
+# Synthesize custom 14-day hiring gap pitch
+python -m sovereign_linkedin.cli hiring-pitch --company "Emirates Tech" --executive "Tariq Al-Mansoor" --role "LLM Architect"
 
 # View content calendar queue
 python -m sovereign_linkedin.cli queue

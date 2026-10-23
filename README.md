@@ -8,6 +8,7 @@
 
 [![License: ModelNorth MN-SL v1.0](https://img.shields.io/badge/License-ModelNorth_MN--SL_v1.0-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Observability: OpenTelemetry](https://img.shields.io/badge/Observability-OpenTelemetry_OTEL-F5A800.svg)](https://opentelemetry.io/)
 [![Architecture: Dual-Engine](https://img.shields.io/badge/Architecture-MCP_%2B_Stealth_CDP-00F0FF.svg)](https://modelnorth.com)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Anti-Ban: PerimeterX Verified](https://img.shields.io/badge/Anti--Ban-PerimeterX_Defeated-brightgreen.svg)](https://modelnorth.com)
@@ -135,7 +136,22 @@ sovereign-linkedin synthesize \
   --angle sovereign
 ```
 
-### 6. Publish Updates to Company Page
+### 6. Autonomous Content Queue & Publishing (with OpenTelemetry Tracing)
+
+Inspect your queued content calendar and trigger autonomous stealth publishing:
+
+```bash
+# View all scheduled and pending posts in the queue
+sovereign-linkedin queue
+
+# Publish the next pending post via Brave CDP with human keystroke telemetry
+sovereign-linkedin publish-next --force
+
+# Inspect real-time OpenTelemetry distributed traces and latencies
+sovereign-linkedin traces --limit 10
+```
+
+### 7. Publish One-Off Updates to Company Page
 
 Distribute thought leadership directly to your company feed with visual graphics:
 
@@ -149,10 +165,10 @@ sovereign-linkedin post-company \
 
 ## 🤖 Native AI Agent Skill Integration
 
-This repository includes a production `SKILL.md` compliant with **Antigravity**, **Claude Code**, **Cursor**, **Windsurf**, and **OpenCode**.
+This repository includes a production `SKILL.md` compliant with enterprise AI coding assistants and agent environments.
 
 To install as an agent skill:
-1. Drop the repository into your `.agents/skills/` or `.claude/skills/` directory.
+1. Drop the repository into your `.agents/skills/` directory.
 2. Trigger in any chat using:
    - `/linkedin scout CTOs in Dubai`
    - `/linkedin synthesize outreach for Tariq`

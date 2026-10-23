@@ -35,7 +35,13 @@ License: **ModelNorth Sovereign Open License (MN-SL v1.0)**
    - Evaluates executives (CTOs, CISOs, Heads of AI, Managing Directors) across the GCC and global enterprise.
    - Computes an autonomous 0–100 Seniority and Sovereignty Alignment Score.
    - Exports clean deduplicated CSV and JSON dossiers.
-3. **Contextual Sovereign Outreach Synthesizer:**
+3. **OpenTelemetry Observability:**
+   - Instruments every browser action, governor check, and publication step with standard distributed spans.
+   - Records latency (ms), token accounting, and execution proof into an append-only sovereign flight ledger (`otel_traces.jsonl`).
+4. **Autonomous Content Queue & Publishing Scheduler:**
+   - Manages structured content calendar with scheduled publishing dates and rich media attachments.
+   - Auto-publishes queued thought leadership updates with human typing cadence and proof logging.
+5. **Contextual Sovereign Outreach Synthesizer:**
    - Synthesizes personalized connection notes strictly under LinkedIn's 300-character cap.
    - Generates high-status, non-salesy technical peer InMails highlighting on-prem LLMs, custom MCP servers, and air-gapped data sovereignty.
 4. **Autonomous Company Page Pilot:**
@@ -62,6 +68,15 @@ python -m sovereign_linkedin.cli scout --role "Chief Technology Officer" --locat
 
 # Live Anti-Ban Browser Lead Scraper over CDP
 python -m sovereign_linkedin.cli scout --role "Chief Technology Officer" --location "Dubai, UAE" --limit 20 --live --export-csv
+
+# View content calendar queue
+python -m sovereign_linkedin.cli queue
+
+# Publish the next pending post from queue (with OpenTelemetry tracing)
+python -m sovereign_linkedin.cli publish-next --force
+
+# Inspect recent OpenTelemetry distributed traces & latencies
+python -m sovereign_linkedin.cli traces --limit 10
 
 # Synthesize personalized connection note and direct message
 python -m sovereign_linkedin.cli synthesize --name "Faisal Al-Otaibi" --company "Sovereign Cloud" --headline "VP of Engineering" --angle sovereign

@@ -269,6 +269,102 @@ def post_company_cmd(text: str, media: str):
     asyncio.run(_run())
 
 
+@cli.command("queue")
+def queue_cmd():
+    """Display the autonomous LinkedIn content publishing queue."""
+    console.print(BANNER)
+    from sovereign_linkedin.modules.scheduler import ContentScheduler
+    config = AgentConfig.load()
+    scheduler = ContentScheduler(config)
+    posts = scheduler.load_queue()
+
+    if not posts:
+        console.print("[yellow]No posts found in content calendar queue.[/yellow]")
+        return
+
+    table = Table(title="[bold green]LinkedIn Autonomous Content Queue[/bold green]", box=box.ROUNDED)
+    table.add_column("ID", style="bold white", width=5)
+    table.add_column("Status", style="bold", width=12)
+    table.add_column("Post Title", style="cyan")
+    table.add_column("Media Attached", style="dim")
+    table.add_column("Published Date", style="green")
+
+    for p in posts:
+        st_style = "bold green" if p.status == "published" else "bold yellow"
+        has_img = "✓ Yes" if p.image_path and Path(p.image_path).exists() else "No"
+        table.add_row(
+            str(p.id),
+            f"[{st_style}]{p.status.upper()}[/{st_style}]",
+            p.title,
+            has_img,
+            p.published_at or "-"
+        )
+
+    console.print(table)
+
+
+@cli.command("publish-next")
+@click.option("--force/--curfew", default=False, help="Bypass evening curfew restrictions")
+def publish_next_cmd(force: bool):
+    """Publish the next pending post from the queue using Brave CDP with OTEL tracing."""
+    console.print(BANNER)
+    from sovereign_linkedin.modules.scheduler import ContentScheduler
+    config = AgentConfig.load()
+    scheduler = ContentScheduler(config)
+
+    next_p = scheduler.get_next_pending_post()
+    if not next_p:
+        console.print("[green]All posts in the queue have already been published! [bold]Queue is complete.[/bold][/green]")
+        return
+
+    console.print(f"[bold cyan]Selected Next Post #{next_p.id}:[/bold cyan] [bold white]{next_p.title}[/bold white]")
+
+    async def _do_publish():
+        success, msg, post = await scheduler.publish_next(force=force)
+        if success:
+            console.print(f"[bold green]✓ {msg}[/bold green]")
+        else:
+            console.print(f"[bold red]✗ {msg}[/bold red]")
+            if "Curfew" in msg:
+                console.print("[yellow]Tip: Use '--force' flag to publish outside 08:00 - 20:00 working hours.[/yellow]")
+
+    asyncio.run(_do_publish())
+
+
+@cli.command("traces")
+@click.option("--limit", default=10, help="Number of recent spans to display")
+def traces_cmd(limit: int):
+    """Inspect OpenTelemetry distributed traces and latency records."""
+    console.print(BANNER)
+    from sovereign_linkedin.core.telemetry import ledger_exporter
+    spans = ledger_exporter.read_recent_spans(limit=limit)
+
+    if not spans:
+        console.print("[yellow]No OpenTelemetry traces recorded yet in local flight ledger.[/yellow]")
+        return
+
+    table = Table(title="[bold green]ModelNorth OpenTelemetry Flight Ledger[/bold green]", box=box.ROUNDED)
+    table.add_column("Span Name", style="bold cyan")
+    table.add_column("Action", style="white")
+    table.add_column("Latency (ms)", style="bold yellow")
+    table.add_column("Status", style="bold green")
+    table.add_column("Timestamp (UTC)", style="dim")
+
+    for s in spans:
+        dur = f"{s.get('duration_ms', 0):.1f}ms"
+        stat = s.get("status", "OK")
+        stat_color = "green" if stat == "OK" else "red"
+        table.add_row(
+            s.get("step_name", "step"),
+            s.get("action", "general"),
+            dur,
+            f"[{stat_color}]{stat}[/{stat_color}]",
+            s.get("start_time", "")[:19]
+        )
+
+    console.print(table)
+
+
 def main():
     cli()
 

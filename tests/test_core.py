@@ -93,3 +93,40 @@ def test_lead_scout_clean_helpers():
     raw_url = "https://www.linkedin.com/in/tariq-al-mansoor?miniProfileUrn=urn%3Ali%3Afs_miniProfile%3A12345"
     cleaned_url = LeadScout.clean_url(raw_url)
     assert cleaned_url == "https://www.linkedin.com/in/tariq-al-mansoor"
+
+
+def test_opentelemetry_tracing():
+    from sovereign_linkedin.core.telemetry import trace_agent_step, ledger_exporter
+    with tempfile.TemporaryDirectory() as tmpdir:
+        ledger_exporter.log_dir = Path(tmpdir)
+        ledger_exporter.trace_file = Path(tmpdir) / "otel_traces.jsonl"
+
+        with trace_agent_step("test.step", action="unit_test", test_param="verified") as span:
+            pass
+
+        spans = ledger_exporter.read_recent_spans()
+        assert len(spans) == 1
+        assert spans[0]["step_name"] == "test.step"
+        assert spans[0]["gen_ai.system"] == "modelnorth"
+        assert spans[0]["status"] == "OK"
+        assert "duration_ms" in spans[0]
+
+
+def test_scheduler_queue_loading():
+    from sovereign_linkedin.modules.scheduler import ContentScheduler, QueuedPost
+    with tempfile.TemporaryDirectory() as tmpdir:
+        queue_file = Path(tmpdir) / "test_queue.json"
+        posts_data = [
+            {"id": 1, "title": "Post 1", "status": "published", "content": "text 1"},
+            {"id": 2, "title": "Post 2", "status": "queued", "content": "text 2"}
+        ]
+        import json
+        queue_file.write_text(json.dumps(posts_data))
+
+        config = AgentConfig()
+        config.vault_dir = Path(tmpdir)
+        scheduler = ContentScheduler(config, queue_path=queue_file)
+        next_post = scheduler.get_next_pending_post()
+        assert next_post is not None
+        assert next_post.id == 2
+        assert next_post.title == "Post 2"
